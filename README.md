@@ -1,1 +1,1 @@
-# ai-risk-arena
+# ai-safety-arena
