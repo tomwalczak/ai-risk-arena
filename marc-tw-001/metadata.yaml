@@ -1,0 +1,4 @@
+version: 0.01
+name: marc-tw
+based_on:
+  - https://pmarca.substack.com/p/why-ai-will-save-the-world

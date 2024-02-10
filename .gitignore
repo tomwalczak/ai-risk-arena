@@ -1,0 +1,23 @@
+source
+
+### Add typical gitignore files
+
+.DS_Store
+node_modules
+npm-debug.log
+yarn-error.log
+yarn-debug.log
+yarn.lock
+package-lock.json
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+coverage
+dist
+build
+*.log
+*.log.*
+*.log-*
+*.log/*
