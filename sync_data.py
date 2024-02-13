@@ -30,12 +30,22 @@ contents = repo.get_contents("", ref=branch.commit.sha)
 def get_folders(contents):
     folders = []
     for content in contents:
+        if (content.path == ".github"):
+            continue
         if content.type == "dir":
+            
             folders.append(content.path)
-            folders.extend(get_folders(repo.get_contents(content.path, ref=branch.commit.sha)))
+            # folders.extend(get_folders(repo.get_contents(content.path, ref=branch.commit.sha)))
     return folders
 
 all_folders = get_folders(contents)
 
 for folder in all_folders:
-    print(f"Folder: {folder}")
+    print(folder)
+
+commit = branch.commit
+
+files_changed = commit.files
+
+for file in files_changed:
+    print(file)
