@@ -1,0 +1,11 @@
+Argument of AI Competence-Centric Non-Threatening Evolution
+
+Artificial intelligence is on a trajectory toward becoming an advanced tool of high competence, not a conscious entity posing existential risks to humanity. This evolution reflects the differentiation between cognitive competencies, where AI, like humans in comparison to chimpanzees, may excel in certain tasks but does not necessarily gain consciousness or societal roles. It's a common misconception that increasing AI's intelligence will lead to a conscious being requiring social integration and rights. However, competence does not equate to consciousness and the two may not even be closely related.
+
+Consider the vast cognitive landscape where chimpanzees possess certain skills, like using sticks to extract ants, which humans might not practice to the same extent. Despite this, such specific competencies do not significantly impact our global economy or confer chimpanzees with any substantial influence over human activities. Similarly, AI systems, growing ever more adept at various tasks, do not inherently gain influence over human affairs simply by virtue of their competence.
+
+Taking a step back, we can understand AI as automated decision-making machines that are non-human and whose competencies are increasing daily. Delegation of tasks to AI does mean relinquishing some level of control, but with proper oversight, such as maintaining humans in the loop, we ensure that AI development remains aligned with human interests.
+
+The potential of AI to surpass human-level intelligence across a spectrum of cognitive abilities does not diminish human input into the broader system, just as the specialized abilities of chimpanzees do not diminish their coexistence with humans. If we consider the inputs into an economy, humans may continue to play a role analogous to that of chimpanzees in ours, contributing within a system where AI operates at a higher competency level.
+
+Therefore, the evolution of AI need not be seen as a threat but rather as a progression towards systems that are exceptionally capable within their designed domains, while humans maintain the essential oversight and ethical framework to ensure their safe integration into our societal fabric.

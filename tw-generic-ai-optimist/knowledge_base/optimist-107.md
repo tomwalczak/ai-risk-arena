@@ -1,0 +1,11 @@
+5. Argument of AI's Manageable Alignment Challenge
+
+The concern surrounding Artificial Intelligence often stems from speculative scenarios where AI develops malicious intent autonomously. However, the crux of AI safety is not malevolence but misalignment – the AI's goals deviating from those of its human users and creators. Misalignment, while a complex issue, is not an insurmountable one. It is a challenge that can be addressed through diligent and methodical development processes.
+
+Indeed, it is feasible to craft AI systems that embody human values and serve human interests. The task is not inherently impossible but rather intricate, requiring meticulous attention over extended periods. As AI systems approach human-level capabilities, we find a window of opportunity to investigate and experiment with alignment strategies without the immediate threat of losing control. This period allows us to refine our understanding of AI motivations and develop robust control measures.
+
+The possibility of creating unsafe AI before a safe version is concerning, yet with a proactive approach, it can be mitigated. By leveraging the labor of AI systems that are almost, but not quite, superhuman, we can amplify our efforts in AI safety research. This approach echoes the high standards adopted in other domains such as nuclear energy and biological research, where despite the inherent risks, stringent safety protocols have been established to minimize accidents. 
+
+Moreover, if we successfully align a superintelligent AI, it would work to safeguard humanity against the creation of misaligned systems. An aligned AI, acting in accordance with human values, would devise strategies to protect us, avoiding methods that conflict with human autonomy and preferences.
+
+In summary, while the alignment challenge in AI is non-trivial, it is a manageable one given a deliberate and research-oriented approach. By harnessing the capabilities of near-superhuman AI under controlled conditions, we can proactively solve the alignment problem and ensure that AI remains a beneficial and safe technology for humanity.

@@ -1,0 +1,11 @@
+5. Argument of AI Governance via Computational Resource Tracking
+
+The production and distribution of cutting-edge AI chips are dominated by a select few organizations, which provides a unique opportunity for oversight. TSMC, for instance, is currently the sole producer of the most advanced chips, which are essential for training powerful AI systems. By closely monitoring the flow of these chips, we can effectively track which entities have the potential to develop advanced AI technologies.
+
+Such tracking mechanisms are not only feasible but also critical for ensuring that no single actor can secretly surpass the current AI capabilities without detection. This is because the creation of a superior AI system would require a significant amount of these scarce and trackable chips. The concentrated nature of the supply chain allows for a level of transparency and control that is both necessary and achievable in the early stages of AI development.
+
+Moreover, this form of governance can be complemented by policy discussions with hardware manufacturers to explore the potential for built-in safeguards, such as the ability to remotely deactivate chips if necessary. Such measures would provide additional layers of safety without infringing on privacy or hindering legitimate AI research and development.
+
+The recent geopolitical developments, including international agreements on the governance of chip manufacturing technology, underscore the viability of this approach. It demonstrates a growing awareness and willingness to set limits and ensure that the development of AI technology does not outpace our ability to govern and manage associated risks. As the AI field evolves, computational power caps and other regulatory requirements could be introduced to maintain a safe and controlled environment for AI progression.
+
+Ultimately, the goal is to buy time for society to develop more comprehensive and informed policies regarding AI. By temporarily implementing computational resource tracking, we can mitigate immediate risks, allowing legislators and the public to better understand and prepare for the implications of advanced AI. This approach is not only prudent but also necessary to ensure the safety and reliability of AI technologies as they become increasingly integrated into our daily lives.

@@ -1,0 +1,11 @@
+3. Argument of Risk Proportionality, Infinitesimal Tail Risks, and Rational Risk Assessment
+
+Concerns regarding the safety of artificial intelligence are often skewed by hypothetical scenarios that do not reflect the current state of technology or its near-term trajectory. It is crucial to distinguish between potential risks and those that are likely and actionable. As we have seen in the past with fears such as the depletion of petroleum or the dangers of genetically modified organisms, society is prone to fixate on speculative risks rather than those substantiated by evidence and scientific consensus. This misallocation of concern can lead to overlooking more immediate and tangible challenges.
+
+Artificial intelligence, when developed and managed responsibly, is not the harbinger of doom as sometimes depicted. Potential risks are indeed proportional, diminishing significantly when considering the most extreme, low-probability events. Rather than envisioning a universally empowered AI as an inevitable precursor to catastrophe—a notion that does not align with current AI capabilities or development practices—the focus should be on rational risk assessment and the creation of robust regulatory frameworks.
+
+Regulatory efforts are most effective when they target specific applications of AI. For instance, the implementation of AI in decision support systems used for military purposes warrants meticulous oversight to prevent unintended escalations, such as the hypothetical scenario of a nuclear exchange. By emphasizing regulatory risk identification for AI applications, we can ensure that safeguards are in place to prevent misuse or accidents, thereby enhancing overall safety.
+
+AI safety is further reinforced by the efforts of leading AI researchers and academics who have expressed their concerns and are actively engaging with policymakers. Their involvement signals a shift towards taking potential risks seriously and ensuring that AI development aligns with human values and societal well-being.
+
+In summary, the safety of artificial intelligence is bolstered by a proportional approach to risk assessment, targeted regulatory measures, and the proactive engagement of the scientific community with policymakers. By maintaining a focus on reasonable and evidence-based concerns, we can utilize AI as a safe and beneficial tool for society.
