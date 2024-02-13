@@ -48,4 +48,5 @@ commit = branch.commit
 files_changed = commit.files
 
 for file in files_changed:
-    print(file)
+
+    print(file.filename.split("/knowledge_base/"))
