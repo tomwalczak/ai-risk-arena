@@ -1,3 +1,1 @@
 # ai-safety-arena
-
-testtests
