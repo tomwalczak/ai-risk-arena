@@ -11,7 +11,7 @@ console.log("GH_ACCESS_TOKEN:", process.env.GH_ACCESS_TOKEN);
 console.log("OPENAI_API_KEY:", process.env.OPENAI_API_KEY);
 
 const octokit = new Octokit({ auth: process.env.GH_ACCESS_TOKEN });
-const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_KEY);
+const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_API_KEY);
 const openai = new OpenAI(process.env.OPENAI_API_KEY);
 
 async function fetchDataFromGitHub() {
