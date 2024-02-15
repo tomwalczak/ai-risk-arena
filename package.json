@@ -1,0 +1,19 @@
+{
+  "name": "ai-safety-arena",
+  "version": "1.0.0",
+  "description": "",
+  "main": "SincData.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "@octokit/rest": "^18.0.0",
+    "@supabase/supabase-js": "^1.16.1",
+    "dotenv": "^10.0.0",
+    "openai": "^4.28.0",
+    "uuid": "^9.0.1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}

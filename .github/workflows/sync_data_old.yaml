@@ -13,18 +13,20 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
 
-      - name: Install Node.js
-        uses: actions/setup-node@v3
+      - name: Set up Python
+        uses: actions/setup-python@v2
         with:
-          node-version: "20"
+          python-version: "3.11"
 
       - name: Install dependencies
-        run: npm install
+        run: |
+          pip install PyGithub
+          pip install supabase-py
 
-      - name: Run JavaScript script
+      - name: Run Python script with API keys
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_API_KEY: ${{ secrets.SUPABASE_API_KEY }}
           GH_ACCESS_TOKEN: ${{ secrets.GH_ACCESS_TOKEN }}
-          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-        run: node sync_data.js
+          # Add more environment variables for other API keys as needed
+        run: python sync_data.py
