@@ -176,7 +176,7 @@ async function getLatestCommit() {
     ref: repo.data.default_branch,
   });
 
-  console.log(latestCommit.files);
+  // console.log(latestCommit.files);
 
   return latestCommit.files.filter((file) => file.filename !== "sync_data.js");
 }
