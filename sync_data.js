@@ -9,26 +9,40 @@ const octokit = new Octokit({ auth: process.env.GH_ACCESS_TOKEN });
 const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_KEY);
 const openai = new OpenAI(process.env.OPENAI_API_KEY);
 
+async function getRepo() {
+  const repo = await octokit.repos.get({
+    owner: "tomwalczak",
+    repo: "ai-safety-arena",
+  });
+
+  // console.log(repo);
+
+  const branch = await octokit.repos.getBranch({
+    owner: repo.data.owner.login,
+    repo: repo.data.name,
+    branch: repo.data.default_branch,
+  });
+
+  const contents = await octokit.repos.getContent({
+    owner: "tomwalczak",
+    repo: "ai-safety-arena",
+    ref: branch.data.name,
+  });
+  return { repo, branch, contents };
+}
+
+async function prepareDataForSupabaseInjection(folders) {
+  const folderDataPromises = folders.map(async (folder) => {
+    return getDataFromFolder(repo.data.owner.login, repo.data.name, repo.data.default_branch, `${folder}/knowledge_base`);
+  });
+
+  const data = await Promise.all(folderDataPromises);
+  return data;
+}
+
 async function fetchDataFromGitHub() {
   try {
-    const repo = await octokit.repos.get({
-      owner: "tomwalczak",
-      repo: "ai-safety-arena",
-    });
-
-    // console.log(repo);
-
-    const branch = await octokit.repos.getBranch({
-      owner: repo.data.owner.login,
-      repo: repo.data.name,
-      branch: repo.data.default_branch,
-    });
-
-    const contents = await octokit.repos.getContent({
-      owner: "tomwalczak",
-      repo: "ai-safety-arena",
-      ref: branch.data.name,
-    });
+    const { repo, branch, contents } = await getRepo();
 
     const folders = contents.data.filter((content) => content.type === "dir" && content.name !== ".github").map((folder) => folder.name);
 
@@ -105,12 +119,12 @@ async function getArgumentTypesFromSupabase() {
       return acc;
     }
   }, []);
-  console.log(types);
+  return types;
 }
 
 async function checkIfInitialSync() {
-  await getArgumentTypesFromSupabase();
-  const { data } = await supabase.from("arguments").select("type_of_argument", { distinct: true });
+  let data = await getArgumentTypesFromSupabase();
+  // const { data } = await supabase.from("arguments").select("type_of_argument", { distinct: true });
   if (data.length === 0) {
     return true;
   }
@@ -156,18 +170,30 @@ async function getLatestCommit() {
   const { data: latestCommit } = await octokit.repos.getCommit({
     owner: repo.data.owner.login,
     repo: repo.data.name,
-    ref: repo.data.default_branch, // or specify the branch name you're interested in
+    ref: repo.data.default_branch,
   });
 
-  console.log(latestCommit);
+  return latestCommit.files.filter((file) => !file.filename === "sync_data.js");
+}
+
+async function getNewlyAddedFolders() {
+  let existingFolders = await getArgumentTypesFromSupabase();
+  const contents = await getRepo();
+  const foldersInRepo = contents.data.filter((content) => content.type === "dir" && content.name !== ".github").map((folder) => folder.name);
+
+  let addedFolders = foldersInRepo.filter((folder) => !existingFolders.includes(folder));
+
+  return addedFolders;
 }
 
 async function main() {
   const isInitialSync = await checkIfInitialSync();
-  console.log(isInitialSync);
-  console.log(await getLatestCommit());
+  const newlyAddedFolders = await getNewlyAddedFolders();
   if (isInitialSync) {
     let data = await fetchDataFromGitHub();
+    await insertDataInSupabase(data);
+  } else if (newlyAddedFolders.length) {
+    let data = await prepareDataForSupabaseInjection(newlyAddedFolders);
     await insertDataInSupabase(data);
   }
 }
