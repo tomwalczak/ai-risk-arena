@@ -154,18 +154,20 @@ async function insertDataInSupabase(data) {
 }
 
 async function getLatestCommit() {
-  const repo = await octokit.repos.get({
-    owner: "tomwalczak",
-    repo: "ai-safety-arena",
-  });
+  // const repo = await octokit.repos.get({
+  //   owner: "tomwalczak",
+  //   repo: "ai-safety-arena",
+  // });
 
-  // console.log(repo);
+  // // console.log(repo);
 
-  const branch = await octokit.repos.getBranch({
-    owner: repo.data.owner.login,
-    repo: repo.data.name,
-    branch: repo.data.default_branch,
-  });
+  // const branch = await octokit.repos.getBranch({
+  //   owner: repo.data.owner.login,
+  //   repo: repo.data.name,
+  //   branch: repo.data.default_branch,
+  // });
+
+  const { repo } = await getRepo();
 
   const { data: latestCommit } = await octokit.repos.getCommit({
     owner: repo.data.owner.login,
