@@ -24,8 +24,6 @@ async function fetchDataFromGitHub() {
       branch: repo.data.default_branch,
     });
 
-    // console.log(branch);
-
     const contents = await octokit.repos.getContent({
       owner: "tomwalczak",
       repo: "ai-safety-arena",
@@ -98,26 +96,26 @@ async function createEmbeddings(argument) {
   return embedding.data[0].embedding;
 }
 
+async function getArgumentTypesFromSupabase() {
+  const { data } = await supabase.from("arguments").select("type_of_argument");
+  let types = data.reduce((acc, type) => {
+    if (!acc.includes(type.type_of_argument)) {
+      return [...acc, type.type_of_argument];
+    } else {
+      return acc;
+    }
+  }, []);
+  console.log(types);
+}
+
 async function checkIfInitialSync() {
-  const { data: arguments } = await supabase.from("arguments").select("*");
-  if (arguments.length === 0) {
+  await getArgumentTypesFromSupabase();
+  const { data } = await supabase.from("arguments").select("type_of_argument", { distinct: true });
+  if (data.length === 0) {
     return true;
   }
   return false;
 }
-
-// async function insertDataInSupabase(data) {
-//   try {
-//     await data.forEach(async (type) => {
-//       type.forEach(async (arg) => {
-//         const { error } = await supabase.from("arguments").insert({ id: arg.id, argument: arg.argument, argument_embedding: arg.argument_embedding, argument_type: arg.argument_type, file_name: arg.file_name });
-//       });
-//     });
-//     console.log("Inserted");
-//   } catch (error) {
-//     console.error(error);
-//   }
-// }
 
 async function insertDataInSupabase(data) {
   try {
@@ -141,9 +139,33 @@ async function insertDataInSupabase(data) {
   }
 }
 
+async function getLatestCommit() {
+  const repo = await octokit.repos.get({
+    owner: "tomwalczak",
+    repo: "ai-safety-arena",
+  });
+
+  // console.log(repo);
+
+  const branch = await octokit.repos.getBranch({
+    owner: repo.data.owner.login,
+    repo: repo.data.name,
+    branch: repo.data.default_branch,
+  });
+
+  const { data: latestCommit } = await octokit.repos.getCommit({
+    owner: repo.data.owner.login,
+    repo: repo.data.name,
+    ref: repo.data.default_branch, // or specify the branch name you're interested in
+  });
+
+  console.log(latestCommit);
+}
+
 async function main() {
   const isInitialSync = await checkIfInitialSync();
   console.log(isInitialSync);
+  console.log(await getLatestCommit());
   if (isInitialSync) {
     let data = await fetchDataFromGitHub();
     await insertDataInSupabase(data);
