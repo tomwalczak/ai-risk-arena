@@ -32,6 +32,7 @@ async function getRepo() {
 }
 
 async function prepareDataForSupabaseInjection(folders) {
+  const { repo, branch, contents } = await getRepo();
   const folderDataPromises = folders.map(async (folder) => {
     return getDataFromFolder(repo.data.owner.login, repo.data.name, repo.data.default_branch, `${folder}/knowledge_base`);
   });
@@ -190,15 +191,28 @@ async function getNewlyAddedFolders() {
   return addedFolders;
 }
 
+function getSingleFilesReadyForUpdates(addedFolders, commit) {
+  let files = commit.filter((file) => {
+    return !addedFolders.includes(file.filename.split("/knowledge_base")[0]);
+  });
+  console.log("Single files", files);
+}
+
 async function main() {
   const isInitialSync = await checkIfInitialSync();
   const newlyAddedFolders = await getNewlyAddedFolders();
+  const latestCommit = await getLatestCommit();
   if (isInitialSync) {
+    console.log("Njet");
     let data = await fetchDataFromGitHub();
     await insertDataInSupabase(data);
   } else if (newlyAddedFolders.length) {
-    let data = await prepareDataForSupabaseInjection(newlyAddedFolders);
-    await insertDataInSupabase(data);
+    console.log(newlyAddedFolders);
+    console.log("Njet");
+    // let data = await prepareDataForSupabaseInjection(newlyAddedFolders);
+    // await insertDataInSupabase(data);
+
+    getSingleFilesReadyForUpdates(newlyAddedFolders, latestCommit);
   }
   console.log("Commit", await getLatestCommit());
 }
