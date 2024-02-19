@@ -178,7 +178,7 @@ async function getLatestCommit() {
 
 async function getNewlyAddedFolders() {
   let existingFolders = await getArgumentTypesFromSupabase();
-  const contents = await getRepo();
+  const { contents } = await getRepo();
   const foldersInRepo = contents.data.filter((content) => content.type === "dir" && content.name !== ".github").map((folder) => folder.name);
 
   let addedFolders = foldersInRepo.filter((folder) => !existingFolders.includes(folder));
@@ -196,6 +196,7 @@ async function main() {
     let data = await prepareDataForSupabaseInjection(newlyAddedFolders);
     await insertDataInSupabase(data);
   }
+  console.log("Commit", await getLatestCommit());
 }
 
 main();
