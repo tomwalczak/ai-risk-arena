@@ -155,19 +155,6 @@ async function insertDataInSupabase(data) {
 }
 
 async function getLatestCommit() {
-  // const repo = await octokit.repos.get({
-  //   owner: "tomwalczak",
-  //   repo: "ai-safety-arena",
-  // });
-
-  // // console.log(repo);
-
-  // const branch = await octokit.repos.getBranch({
-  //   owner: repo.data.owner.login,
-  //   repo: repo.data.name,
-  //   branch: repo.data.default_branch,
-  // });
-
   const { repo } = await getRepo();
 
   const { data: latestCommit } = await octokit.repos.getCommit({
@@ -175,8 +162,6 @@ async function getLatestCommit() {
     repo: repo.data.name,
     ref: repo.data.default_branch,
   });
-
-  // console.log(latestCommit.files);
 
   return latestCommit.files.filter((file) => file.filename !== "sync_data.js");
 }
@@ -195,26 +180,80 @@ function getSingleFilesReadyForUpdates(addedFolders, commit) {
   let files = commit.filter((file) => {
     return !addedFolders.includes(file.filename.split("/knowledge_base")[0]);
   });
-  console.log("Single files", files);
+  let filesSorted = {
+    updated: files.filter((file) => {
+      return file.filename.includes("knowledge_base") && file.status === "modified";
+    }),
+    deleted: files.filter((file) => {
+      return file.filename.includes("knowledge_base") && file.status === "removed";
+    }),
+    added: files.filter((file) => {
+      return file.filename.includes("knowledge_base") && file.status === "added";
+    }),
+  };
+  console.log(filesSorted);
+  return filesSorted;
+}
+
+async function updateArgumentsInSupabase(obj) {
+  obj.updated.forEach(async (arg) => {
+    let { repo } = await getRepo();
+    const fileContent = await octokit.repos.getContent({
+      owner: repo.data.owner.login,
+      repo: repo.data.name,
+      path: arg.filename,
+      ref: repo.data.default_branch,
+    });
+
+    let [argType, fileName] = arg.filename.split("/knowledge_base/");
+
+    let argText = Buffer.from(fileContent.data.content, "base64").toString("utf-8");
+
+    const { error } = await supabase.from("arguments").update({ argument: argText }).eq("type_of_argument", argType).eq("file_name", fileName);
+  });
+  obj.added.forEach(async (arg) => {
+    let { repo } = await getRepo();
+    const fileContent = await octokit.repos.getContent({
+      owner: repo.data.owner.login,
+      repo: repo.data.name,
+      path: arg.filename,
+      ref: repo.data.default_branch,
+    });
+
+    let [argType, fileName] = arg.filename.split("/knowledge_base/");
+
+    let argText = Buffer.from(fileContent.data.content, "base64").toString("utf-8");
+    let embedding = await createEmbeddings(argText);
+
+    const { error } = await supabase.from("arguments").insert({ id: v4(), argument: argText, argument_embedding: embedding, type_of_argument: argType, file_name: fileName });
+  });
+
+  obj.deleted.forEach(async (arg) => {
+    let [argType, fileName] = arg.filename.split("/knowledge_base/");
+    const { error } = await supabase.from("arguments").delete().eq("type_of_argument", argType).eq("file_name", fileName);
+  });
 }
 
 async function main() {
   const isInitialSync = await checkIfInitialSync();
   const newlyAddedFolders = await getNewlyAddedFolders();
   const latestCommit = await getLatestCommit();
+  let filesForUpdate = getSingleFilesReadyForUpdates(newlyAddedFolders, latestCommit);
   if (isInitialSync) {
     console.log("Njet");
     let data = await fetchDataFromGitHub();
     await insertDataInSupabase(data);
   } else if (newlyAddedFolders.length) {
-    console.log(newlyAddedFolders);
+    // console.log(newlyAddedFolders);
     console.log("Njet");
-    // let data = await prepareDataForSupabaseInjection(newlyAddedFolders);
-    // await insertDataInSupabase(data);
+    let data = await prepareDataForSupabaseInjection(newlyAddedFolders);
+    await insertDataInSupabase(data);
 
-    getSingleFilesReadyForUpdates(newlyAddedFolders, latestCommit);
+    await updateArgumentsInSupabase(filesForUpdate);
+  } else {
+    await updateArgumentsInSupabase(filesForUpdate);
   }
-  console.log("Commit", await getLatestCommit());
+  // console.log("Commit", await getLatestCommit());
 }
 
 main();
