@@ -73,7 +73,21 @@ async function getDataFromFolder(owner, repo, branch, folderPath) {
       ref: branch,
     });
 
-    // console.log(folderContents);
+    const metadata = await octokit.repos.getContent({
+      owner,
+      repo,
+      path: folderPath.split("/knowledge_base")[0] + "/metadata.yaml",
+      ref: branch,
+    });
+
+    let metadataText = Buffer.from(metadata.data.content, "base64").toString("utf-8");
+    let sourceUrl = "";
+
+    if (metadataText.indexOf("based_on") !== -1) {
+      sourceUrl = metadataText.split("based_on:")[1].split("\n")[1].split("  - ")[1].trim();
+    }
+
+    console.log(sourceUrl);
 
     const filesData = await Promise.all(
       folderContents.map(async (content) => {
@@ -94,10 +108,13 @@ async function getDataFromFolder(owner, repo, branch, folderPath) {
             argument: argText,
             type_of_argument: folderPath.split("/knowledge_base")[0],
             argument_embedding: embedding,
+            source: sourceUrl,
           };
         }
       })
     );
+
+    // console.log(filesData);
     return filesData;
   } catch (error) {
     console.error("Error fetching folder data:", error);
@@ -137,6 +154,7 @@ async function checkIfInitialSync() {
 }
 
 async function insertDataInSupabase(data) {
+  console.log(data);
   try {
     for (const type of data) {
       for (const arg of type) {
@@ -146,6 +164,7 @@ async function insertDataInSupabase(data) {
           argument_embedding: arg.argument_embedding,
           type_of_argument: arg.type_of_argument,
           file_name: arg.file_name,
+          source: arg.source,
         });
         if (error) {
           throw new Error(`Error inserting data: ${error.message}`);
@@ -175,10 +194,15 @@ async function getLatestCommit() {
   return latestCommit.files.filter((file) => file.filename !== "sync_data.js");
 }
 
-async function getNewlyAddedFolders() {
-  let existingFolders = await getArgumentTypesFromSupabase();
+async function getFoldersFromRepo() {
   const { contents } = await getRepo();
   const foldersInRepo = contents.data.filter((content) => content.type === "dir" && content.name !== ".github").map((folder) => folder.name);
+  return foldersInRepo;
+}
+
+async function getNewlyAddedFolders() {
+  let existingFolders = await getArgumentTypesFromSupabase();
+  const foldersInRepo = await getFoldersFromRepo();
 
   let addedFolders = foldersInRepo.filter((folder) => !existingFolders.includes(folder));
 
@@ -246,8 +270,9 @@ async function updateArgumentsInSupabase(obj) {
 async function formatChatbots(folders) {
   let { repo } = await getRepo();
   let chatbots = [];
-  for (let i = 0; i < folders.length; i++) {
-    let chatbot = { id: v4(), arguments: [folders[i]] };
+  for (let i = 0; i < folders.length - 1; i++) {
+    console.log(folders[i]);
+    let chatbot = { id: v4(), arguments: [folders[i]], wins: 0, losses: 0, draws: 0 };
     try {
       const prompt = await octokit.repos.getContent({
         owner: repo.data.owner.login,
@@ -269,20 +294,36 @@ async function formatChatbots(folders) {
         let metadataText = Buffer.from(metadata.data.content, "base64").toString("utf-8");
         chatbot.name = metadataText.split("name: ")[1].split("\n")[0];
         chatbot.perspective = metadataText.split("sentiment: ")[1].split("\n")[0];
-        console.log(chatbot);
+        chatbots.push(chatbot);
       }
     } catch (error) {
       console.error(error);
     }
   }
+  console.log(chatbots);
+  return chatbots;
 }
 
-async function prepareChatbotsForInsertionInSupabase() {
-  const { repo, contents } = await getRepo();
-  // console.log(contents);
-  const folders = contents.data.filter((content) => content.type === "dir" && content.name !== ".github").map((folder) => folder.name);
+async function insertChatbotInSupabase(obj) {
+  const { error } = await supabase.from("chatbots").insert({
+    id: obj.id,
+    name: obj.name,
+    types: obj.arguments,
+    wins: obj.wins,
+    losses: obj.losses,
+    draws: obj.draws,
+    perspective: obj.perspective,
+    system_prompt: obj.system_prompt,
+    source: obj.source,
+  });
+}
+
+async function prepareChatbotsForInsertionAndInsertInSupabase(folders) {
   // console.log(folders);
-  formatChatbots(folders);
+  let chatbotsReadyForInsertion = await formatChatbots(folders);
+  chatbotsReadyForInsertion.forEach(async (chatbot) => {
+    await insertChatbotInSupabase(chatbot);
+  });
 }
 
 async function main() {
@@ -290,15 +331,17 @@ async function main() {
   const newlyAddedFolders = await getNewlyAddedFolders();
   const latestCommit = await getLatestCommit();
   let filesForUpdate = getSingleFilesReadyForUpdates(newlyAddedFolders, latestCommit);
-  prepareChatbotsForInsertionInSupabase();
   if (isInitialSync) {
-    let data = await fetchDataFromGitHub();
-    await insertDataInSupabase(data);
+    console.log("Jesteda");
+    // let data = await fetchDataFromGitHub();
+    // await insertDataInSupabase(data);
+    let folders = await getFoldersFromRepo();
+    await prepareChatbotsForInsertionAndInsertInSupabase(folders);
   } else if (newlyAddedFolders.length) {
-    // console.log(newlyAddedFolders);
     console.log("Njet");
     let data = await prepareDataForSupabaseInjection(newlyAddedFolders);
     await insertDataInSupabase(data);
+    await prepareChatbotsForInsertionAndInsertInSupabase(newlyAddedFolders);
     await updateArgumentsInSupabase(filesForUpdate);
   } else {
     await updateArgumentsInSupabase(filesForUpdate);
