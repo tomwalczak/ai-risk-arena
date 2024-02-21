@@ -11,7 +11,7 @@ const openai = new OpenAI(process.env.OPENAI_API_KEY);
 const owner = process.env.REPO_OWNER;
 const editor = process.env.EDITOR;
 
-console.log(owner, editor);
+// console.log(owner, editor);
 
 async function getRepo() {
   const repo = await octokit.repos.get({
@@ -87,7 +87,7 @@ async function getDataFromFolder(owner, repo, branch, folderPath) {
       sourceUrl = metadataText.split("based_on:")[1].split("\n")[1].split("  - ")[1].trim();
     }
 
-    console.log(sourceUrl);
+    // console.log(sourceUrl);
 
     const filesData = await Promise.all(
       folderContents.map(async (content) => {
@@ -146,7 +146,6 @@ async function getArgumentTypesFromSupabase() {
 
 async function checkIfInitialSync() {
   let data = await getArgumentTypesFromSupabase();
-  // const { data } = await supabase.from("arguments").select("type_of_argument", { distinct: true });
   if (data.length === 0) {
     return true;
   }
@@ -154,7 +153,7 @@ async function checkIfInitialSync() {
 }
 
 async function insertDataInSupabase(data) {
-  console.log(data);
+  // console.log(data);
   try {
     for (const type of data) {
       for (const arg of type) {
@@ -270,8 +269,8 @@ async function updateArgumentsInSupabase(obj) {
 async function formatChatbots(folders) {
   let { repo } = await getRepo();
   let chatbots = [];
-  for (let i = 0; i < folders.length - 1; i++) {
-    console.log(folders[i]);
+  for (let i = 0; i < folders.length; i++) {
+    // console.log(folders[i]);
     let chatbot = { id: v4(), arguments: [folders[i]], wins: 0, losses: 0, draws: 0 };
     try {
       const prompt = await octokit.repos.getContent({
@@ -300,7 +299,7 @@ async function formatChatbots(folders) {
       console.error(error);
     }
   }
-  console.log(chatbots);
+  // console.log(chatbots);
   return chatbots;
 }
 
@@ -326,6 +325,18 @@ async function prepareChatbotsForInsertionAndInsertInSupabase(folders) {
   });
 }
 
+async function syncChatbots() {
+  let chatbotsFromSupabase = await supabase.from("chatbots").select("*");
+  let argumentTypes = await getArgumentTypesFromSupabase();
+  let chatbotsFromSupabaseMapped = chatbotsFromSupabase.data.map((chatbot) => chatbot.types[0]);
+  for (let i = 0; i < chatbotsFromSupabaseMapped; i++) {
+    if (!argumentTypes.includes(chatbotsFromSupabaseMapped[i])) {
+      console.log(chatbotsFromSupabaseMapped[i]);
+      console.log(chatbotsFromSupabase[i]);
+    }
+  }
+}
+
 async function main() {
   const isInitialSync = await checkIfInitialSync();
   const newlyAddedFolders = await getNewlyAddedFolders();
@@ -333,8 +344,8 @@ async function main() {
   let filesForUpdate = getSingleFilesReadyForUpdates(newlyAddedFolders, latestCommit);
   if (isInitialSync) {
     console.log("Jesteda");
-    // let data = await fetchDataFromGitHub();
-    // await insertDataInSupabase(data);
+    let data = await fetchDataFromGitHub();
+    await insertDataInSupabase(data);
     let folders = await getFoldersFromRepo();
     await prepareChatbotsForInsertionAndInsertInSupabase(folders);
   } else if (newlyAddedFolders.length) {
@@ -346,7 +357,8 @@ async function main() {
   } else {
     await updateArgumentsInSupabase(filesForUpdate);
   }
-  // console.log(await getLatestCommit());
+
+  await syncChatbots();
 }
 
 main();
