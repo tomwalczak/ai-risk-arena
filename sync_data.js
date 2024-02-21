@@ -268,6 +268,7 @@ async function formatChatbots(folders) {
       if (metadata.data.content) {
         let metadataText = Buffer.from(metadata.data.content, "base64").toString("utf-8");
         chatbot.name = metadataText.split("name: ")[1].split("\n")[0];
+        chatbot.perspective = metadataText.split("sentiment: ")[1].split("\n")[0];
         console.log(chatbot);
       }
     } catch (error) {
