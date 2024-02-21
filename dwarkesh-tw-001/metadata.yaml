@@ -1,4 +1,5 @@
 version: 0.01
 name: dwarkesh-tw
+sentiment: optimistic
 based_on:
   - https://www.dwarkeshpatel.com/p/contra-marc-andreessen-on-ai

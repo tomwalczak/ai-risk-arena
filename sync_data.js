@@ -8,10 +8,14 @@ require("dotenv").config();
 const octokit = new Octokit({ auth: process.env.GH_ACCESS_TOKEN });
 const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_KEY);
 const openai = new OpenAI(process.env.OPENAI_API_KEY);
+const owner = process.env.REPO_OWNER;
+const editor = process.env.EDITOR;
+
+console.log(owner, editor);
 
 async function getRepo() {
   const repo = await octokit.repos.get({
-    owner: "tomwalczak",
+    owner: owner,
     repo: "ai-safety-arena",
   });
 
@@ -24,7 +28,7 @@ async function getRepo() {
   });
 
   const contents = await octokit.repos.getContent({
-    owner: "tomwalczak",
+    owner: owner,
     repo: "ai-safety-arena",
     ref: branch.data.name,
   });
@@ -52,7 +56,7 @@ async function fetchDataFromGitHub() {
     });
 
     const data = await Promise.all(folderDataPromises);
-    console.log(data);
+    // console.log(data);
     return data;
     //console.log(texts);
   } catch (error) {
@@ -163,6 +167,11 @@ async function getLatestCommit() {
     ref: repo.data.default_branch,
   });
 
+  // console.log(latestCommit.committer.login);
+  // console.log;
+  if (latestCommit.committer.login !== owner && latestCommit.committer.login !== editor) {
+    return [];
+  }
   return latestCommit.files.filter((file) => file.filename !== "sync_data.js");
 }
 
@@ -191,7 +200,7 @@ function getSingleFilesReadyForUpdates(addedFolders, commit) {
       return file.filename.includes("knowledge_base") && file.status === "added";
     }),
   };
-  console.log(filesSorted);
+  // console.log(filesSorted);
   return filesSorted;
 }
 
@@ -234,13 +243,54 @@ async function updateArgumentsInSupabase(obj) {
   });
 }
 
+async function formatChatbots(folders) {
+  let { repo } = await getRepo();
+  let chatbots = [];
+  for (let i = 0; i < folders.length; i++) {
+    let chatbot = { id: v4(), arguments: [folders[i]] };
+    try {
+      const prompt = await octokit.repos.getContent({
+        owner: repo.data.owner.login,
+        repo: repo.data.name,
+        path: folders[i] + "/prompts/system_prompt.md",
+        ref: repo.data.default_branch,
+      });
+      const metadata = await octokit.repos.getContent({
+        owner: repo.data.owner.login,
+        repo: repo.data.name,
+        path: folders[i] + "/metadata.yaml",
+        ref: repo.data.default_branch,
+      });
+      if (prompt.data.content) {
+        chatbot.system_prompt = Buffer.from(prompt.data.content, "base64").toString("utf-8");
+      }
+
+      if (metadata.data.content) {
+        let metadataText = Buffer.from(metadata.data.content, "base64").toString("utf-8");
+        chatbot.name = metadataText.split("name: ")[1].split("\n")[0];
+        console.log(chatbot);
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  }
+}
+
+async function prepareChatbotsForInsertionInSupabase() {
+  const { repo, contents } = await getRepo();
+  // console.log(contents);
+  const folders = contents.data.filter((content) => content.type === "dir" && content.name !== ".github").map((folder) => folder.name);
+  // console.log(folders);
+  formatChatbots(folders);
+}
+
 async function main() {
   const isInitialSync = await checkIfInitialSync();
   const newlyAddedFolders = await getNewlyAddedFolders();
   const latestCommit = await getLatestCommit();
   let filesForUpdate = getSingleFilesReadyForUpdates(newlyAddedFolders, latestCommit);
+  prepareChatbotsForInsertionInSupabase();
   if (isInitialSync) {
-    console.log("Njet");
     let data = await fetchDataFromGitHub();
     await insertDataInSupabase(data);
   } else if (newlyAddedFolders.length) {
@@ -248,12 +298,11 @@ async function main() {
     console.log("Njet");
     let data = await prepareDataForSupabaseInjection(newlyAddedFolders);
     await insertDataInSupabase(data);
-
     await updateArgumentsInSupabase(filesForUpdate);
   } else {
     await updateArgumentsInSupabase(filesForUpdate);
   }
-  // console.log("Commit", await getLatestCommit());
+  // console.log(await getLatestCommit());
 }
 
 main();
