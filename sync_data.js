@@ -329,10 +329,11 @@ async function syncChatbots() {
   let chatbotsFromSupabase = await supabase.from("chatbots").select("*");
   let argumentTypes = await getArgumentTypesFromSupabase();
   let chatbotsFromSupabaseMapped = chatbotsFromSupabase.data.map((chatbot) => chatbot.types[0]);
-  for (let i = 0; i < chatbotsFromSupabaseMapped; i++) {
+  console.log(argumentTypes);
+  console.log(chatbotsFromSupabaseMapped);
+  for (let i = 0; i < chatbotsFromSupabaseMapped.length; i++) {
     if (!argumentTypes.includes(chatbotsFromSupabaseMapped[i])) {
-      console.log(chatbotsFromSupabaseMapped[i]);
-      console.log(chatbotsFromSupabase[i]);
+      await supabase.from("chatbots").delete().eq("id", chatbotsFromSupabase.data[i].id);
     }
   }
 }
