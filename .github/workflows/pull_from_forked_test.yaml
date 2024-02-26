@@ -8,14 +8,13 @@ on:
     branches:
       - main
     types: [closed]
-  push_to_main_by_collaborator:
-    branches:
-      - main
 
 jobs:
   run_script:
-    if: (github.event_name == 'push' && (github.repository.owner.login == github.actor || github.event.sender.type == 'User')) || (github.event_name == 'pull_request' && github.event.action == 'closed' && github.event.pull_request.merged)
     runs-on: ubuntu-latest
+    if: github.event_name == 'push' && github.repository.owner.login == github.actor || 
+        (github.event_name == 'pull_request' && github.event.action == 'closed' && 
+         github.event.pull_request.base.ref == 'main' && github.event.pull_request.merged)
 
     steps:
       - name: Checkout repository
