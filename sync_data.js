@@ -180,12 +180,6 @@ async function getLatestCommit() {
     repo: repo.data.name,
     ref: repo.data.default_branch,
   });
-
-  // console.log(latestCommit.committer.login);
-  // console.log;
-  if (latestCommit.committer.login !== owner && latestCommit.committer.login !== editor) {
-    return [];
-  }
   return latestCommit.files.filter((file) => file.filename !== "sync_data.js");
 }
 
