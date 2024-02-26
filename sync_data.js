@@ -5,6 +5,9 @@ const { v4 } = require("uuid");
 
 require("dotenv").config();
 
+const eventName = process.env.GITHUB_EVENT_NAME;
+console.log(eventName);
+
 const octokit = new Octokit({ auth: process.env.GH_ACCESS_TOKEN });
 const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_KEY);
 const openai = new OpenAI();
@@ -183,6 +186,47 @@ async function getLatestCommit() {
   return latestCommit.files.filter((file) => file.filename !== "sync_data.js");
 }
 
+async function getLatestPullRequestNumber() {
+  let { repo } = await getRepo();
+  try {
+    // Get the list of pull requests sorted by creation date in descending order
+    const { data: pullRequests } = await octokit.pulls.list({
+      state: "closed",
+      owner: owner,
+      repo: repo.data.name,
+      base: "main",
+      sort: "created",
+      direction: "desc",
+      per_page: 1, // Limit to only 1 pull request
+    });
+
+    if (pullRequests.length > 0) {
+      return pullRequests[0].number; // Return the pull request number of the first item
+    } else {
+      throw new Error("No pull requests found");
+    }
+  } catch (error) {
+    console.error("Error getting latest pull request number:", error);
+    throw error;
+  }
+}
+
+async function getFilesChangedByMerge(pullNumber) {
+  try {
+    let { repo } = await getRepo();
+    const { data: files } = await octokit.pulls.listFiles({
+      owner: owner,
+      repo: repo.data.name,
+      pull_number: pullNumber,
+    });
+
+    return files;
+  } catch (error) {
+    console.error("Error getting files changed by merge:", error);
+    throw error;
+  }
+}
+
 async function getFoldersFromRepo() {
   const { contents } = await getRepo();
   const foldersInRepo = contents.data.filter((content) => content.type === "dir" && content.name !== ".github").map((folder) => folder.name);
@@ -213,7 +257,7 @@ function getSingleFilesReadyForUpdates(addedFolders, commit) {
       return file.filename.includes("knowledge_base") && file.status === "added";
     }),
   };
-  // console.log(filesSorted);
+  console.log(filesSorted);
   return filesSorted;
 }
 
@@ -333,6 +377,7 @@ async function main() {
   const newlyAddedFolders = await getNewlyAddedFolders();
   const latestCommit = await getLatestCommit();
   let filesForUpdate = getSingleFilesReadyForUpdates(newlyAddedFolders, latestCommit);
+  let pullNumber = await getLatestPullRequestNumber();
   if (isInitialSync) {
     console.log("Jesteda");
     let data = await fetchDataFromGitHub();
@@ -350,6 +395,7 @@ async function main() {
   }
 
   await syncChatbots();
+  console.log(await getFilesChangedByMerge(pullNumber));
 }
 
 main();
