@@ -6,7 +6,7 @@ const { v4 } = require("uuid");
 require("dotenv").config();
 
 const eventName = process.env.GITHUB_EVENT_NAME;
-console.log(eventName);
+console.log("Event", eventName);
 
 const octokit = new Octokit({ auth: process.env.GH_ACCESS_TOKEN });
 const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_KEY);
