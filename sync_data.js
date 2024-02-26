@@ -6,8 +6,8 @@ const { v4 } = require("uuid");
 require("dotenv").config();
 
 const octokit = new Octokit({ auth: process.env.GH_ACCESS_TOKEN });
-const supabase = createClient("https://yxlicnsxwngyrnlcltor.supabase.co", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl4bGljbnN4d25neXJubGNsdG9yIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MDIwMzA0NDYsImV4cCI6MjAxNzYwNjQ0Nn0.b_5N2kwVB0M9QYODEN0n2wKUx0VjlQsKl1N9Z0Qj81I");
-const openai = new OpenAI({ apiKey: "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" });
+const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_KEY);
+const openai = new OpenAI();
 const owner = "tomwalczak";
 const editor = "DinoDelicdev";
 
