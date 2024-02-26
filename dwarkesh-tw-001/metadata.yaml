@@ -1,5 +1,4 @@
-version: 0.01
-name: dwarkesh-tw
-sentiment: optimistic
+name: dwarkesh-feb-24-001
+tags: #pessimist
 based_on:
   - https://www.dwarkeshpatel.com/p/contra-marc-andreessen-on-ai
