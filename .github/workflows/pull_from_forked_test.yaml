@@ -12,9 +12,9 @@ on:
 jobs:
   run_script:
     runs-on: ubuntu-latest
-    if: github.event_name == 'push' && github.repository.owner.login == github.actor ||
+    if: (github.event_name == 'push' && github.repository.full_name == 'OWNER_USERNAME/REPOSITORY_NAME') ||
       (github.event_name == 'pull_request' && github.event.action == 'closed' &&
-      github.event.pull_request.base.ref == 'main' && github.event.pull_request.merged)
+      github.event.pull_request.base.ref == 'main' && github.event.pull_request.head.repo.full_name != github.repository.full_name)
 
     steps:
       - name: Checkout repository
