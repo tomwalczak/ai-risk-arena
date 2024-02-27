@@ -229,7 +229,7 @@ async function getFilesChangedByMerge(pullNumber) {
 
 async function getFoldersFromRepo() {
   const { contents } = await getRepo();
-  const foldersInRepo = contents.data.filter((content) => content.type === "dir" && content.name !== ".github").map((folder) => folder.name);
+  const foldersInRepo = contents.data.filter((content) => content.type === "dir" && content.name !== ".github" && content.name !== "source").map((folder) => folder.name);
   return foldersInRepo;
 }
 
@@ -254,6 +254,25 @@ function getSingleFilesReadyForUpdates(addedFolders, commit) {
       return file.filename.includes("knowledge_base") && file.status === "removed";
     }),
     added: files.filter((file) => {
+      return file.filename.includes("knowledge_base") && file.status === "added";
+    }),
+  };
+  console.log(filesSorted);
+  return filesSorted;
+}
+
+function getMergedFilesReadyForUpdates(addedFolders, mergedFiles) {
+  let files = mergedFiles.filter((file) => {
+    return !addedFolders.includes(file.filename.split("/knowledge_base")[0]);
+  });
+  let filesSorted = {
+    updated: mergedFiles.filter((file) => {
+      return file.filename.includes("knowledge_base") && file.status === "modified";
+    }),
+    deleted: mergedFiles.filter((file) => {
+      return file.filename.includes("knowledge_base") && file.status === "removed";
+    }),
+    added: mergedFiles.filter((file) => {
       return file.filename.includes("knowledge_base") && file.status === "added";
     }),
   };
@@ -376,8 +395,15 @@ async function main() {
   const isInitialSync = await checkIfInitialSync();
   const newlyAddedFolders = await getNewlyAddedFolders();
   const latestCommit = await getLatestCommit();
-  let filesForUpdate = getSingleFilesReadyForUpdates(newlyAddedFolders, latestCommit);
   let pullNumber = await getLatestPullRequestNumber();
+  const mergedFiles = await getFilesChangedByMerge(pullNumber);
+  let filesForUpdate;
+  if (eventName === "push") {
+    filesForUpdate = getSingleFilesReadyForUpdates(newlyAddedFolders, latestCommit);
+  } else {
+    filesForUpdate = getMergedFilesReadyForUpdates(newlyAddedFolders, mergedFiles);
+  }
+
   if (isInitialSync) {
     console.log("Jesteda");
     let data = await fetchDataFromGitHub();
