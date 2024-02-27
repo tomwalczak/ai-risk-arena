@@ -236,7 +236,6 @@ async function getFoldersFromRepo() {
 async function getNewlyAddedFolders() {
   let existingFolders = await getArgumentTypesFromSupabase();
   const foldersInRepo = await getFoldersFromRepo();
-
   let addedFolders = foldersInRepo.filter((folder) => !existingFolders.includes(folder));
 
   return addedFolders;
@@ -421,7 +420,7 @@ async function main() {
   }
 
   await syncChatbots();
-  console.log(await getFilesChangedByMerge(pullNumber));
+  // console.log(await getFilesChangedByMerge(pullNumber));
 }
 
 main();
