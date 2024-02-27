@@ -1,5 +1,4 @@
-version: 0.01
 name: marc-tw
-sentiment: pessimistic
+tags: #optimist
 based_on:
   - https://pmarca.substack.com/p/why-ai-will-save-the-world
