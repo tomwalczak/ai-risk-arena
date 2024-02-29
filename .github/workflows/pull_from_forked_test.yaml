@@ -27,8 +27,8 @@ jobs:
 
       - name: Run JavaScript script
         env:
-          YOUR_SECRET_1: ${{ secrets.YOUR_SECRET_1 }}
-          YOUR_SECRET_2: ${{ secrets.YOUR_SECRET_2 }}
+          GH_ACCESS_TOKEN: ${{ secrets.GH_ACCESS_TOKEN }}
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
         run: |
           # Replace 'YOUR_GIST_ID' with your actual Gist ID
           # Pass repository secrets as environment variables
