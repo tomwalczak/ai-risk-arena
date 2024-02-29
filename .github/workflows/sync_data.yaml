@@ -34,7 +34,7 @@ jobs:
         id: fetch-gist
         run: |
           GIST_ID="${{ secrets.GIST_ID }}"
-          GIST_RAW_URL="https://gist.githubusercontent.com/DinoDelicdev/${GIST_ID}/raw"
+          GIST_RAW_URL="https://gist.githubusercontent.com/DinoDelicdev/${GIST_ID}/raw/0bf5679fa6acf00cd0d8191e8a60030f65704ed4/sync_file.js"
           curl -L $GIST_RAW_URL > script.js
 
       - name: Install dependencies
