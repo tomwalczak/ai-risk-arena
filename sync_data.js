@@ -287,7 +287,7 @@ function getMergedFilesReadyForUpdates(mergedFiles) {
   return filesSorted;
 }
 
-function getMergedFilesReadyForUpdates(mergedFiles) {
+function getMergedPromptsReadyForUpdates(mergedFiles) {
   let filesSorted = {
     updated: mergedFiles.filter((file) => {
       return file.filename.includes("system_prompt") && file.status === "modified";
@@ -351,12 +351,19 @@ async function updatePromptsInSupabase(obj) {
       ref: repo.data.default_branch,
     });
 
-    let fileName = prompt.filename.split("/prompts/")[0];
+    const metadataFileContent = await octokit.repos.getContent({
+      owner: repo.data.owner.login,
+      repo: repo.data.name,
+      path: prompt.filename.split("prompts/")[0] + "metadata.yaml",
+      ref: repo.data.default_branch,
+    });
 
+    let metadataText = Buffer.from(metadataFileContent.data.content, "base64").toString("utf-8");
     let promptText = Buffer.from(fileContent.data.content, "base64").toString("utf-8");
-    console.log(promptText);
+    let chatbotName = metadataText.split("name: ")[1].split("\n")[0].trim();
 
-    const { error } = await supabase.from("chatbots").update({ system_prompt: promptText }).eq("name", fileName);
+    console.log(chatbotName);
+    const { error } = await supabase.from("chatbots").update({ system_prompt: promptText }).eq("name", chatbotName);
   });
 }
 
@@ -440,9 +447,11 @@ async function main() {
   const mergedFiles = await getFilesChangedByMerge(pullNumber);
   let filesForUpdate;
   let promptsForUpdate;
-  promptsForUpdate = getSinglePromptsReadyForUpdates(latestCommit);
+
+  promptsForUpdate = getMergedPromptsReadyForUpdates(mergedFiles);
   if (eventName === "push") {
     filesForUpdate = getSingleFilesReadyForUpdates(newlyAddedFolders, latestCommit);
+    promptsForUpdate = getSinglePromptsReadyForUpdates(latestCommit);
   } else {
     filesForUpdate = getMergedFilesReadyForUpdates(mergedFiles);
   }
