@@ -473,5 +473,6 @@ async function main() {
   await syncChatbots();
   await updatePromptsInSupabase(promptsForUpdate);
 }
+// dadadaad
 
 main();
