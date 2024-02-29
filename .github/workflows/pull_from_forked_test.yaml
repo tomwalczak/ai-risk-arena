@@ -30,6 +30,11 @@ jobs:
           GH_ACCESS_TOKEN: ${{ env.GH_ACCESS_TOKEN }}
           SUPABASE_URL: ${{ env.SUPABASE_URL }}
           TEST: "test"
+
+        - name: Debug Environment Variables
+          run: |
+            echo "GH_ACCESS_TOKEN: $GH_ACCESS_TOKEN"
+            echo "SUPABASE_URL: $SUPABASE_URL"
         run: |
           # Replace 'YOUR_GIST_ID' with your actual Gist ID
           # Pass repository secrets as environment variables
