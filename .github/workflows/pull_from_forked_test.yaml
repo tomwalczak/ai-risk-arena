@@ -27,8 +27,8 @@ jobs:
 
       - name: Run JavaScript script
         env:
-          GH_ACCESS_TOKEN: ${{ env.GH_ACCESS_TOKEN }}
-          SUPABASE_URL: ${{ env.SUPABASE_URL }}
+          GH_ACCESS_TOKEN: ${{ vars.GH_ACCESS_TOKEN }}
+          SUPABASE_URL: ${{ vars.SUPABASE_URL }}
           TEST: "test"
 
         run: |
