@@ -36,5 +36,3 @@ examples:
 - AI-powered tutors can provide personalized education to students, potentially revolutionizing the educational system.
 - AI in medicine could lead to new treatments and cures, helping to save countless lives.
 - AI applications in energy systems can optimize consumption and contribute to solving the climate crisis.
-
-TEST TEST TEST
