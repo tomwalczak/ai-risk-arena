@@ -27,8 +27,8 @@ jobs:
 
       - name: Replace placeholders with secrets
         run: |
-          sed -i 's/__GH_ACCESS_TOKEN__/'"$GH_ACCESS_TOKEN"'/g' your_script.js
-          sed -i 's/__SUPABASE_URL__/'"$SUPABASE_URL"'/g' your_script.js
+          sed -i 's/__GH_ACCESS_TOKEN__/'"$GH_ACCESS_TOKEN"'/g' test.js
+          sed -i 's/__SUPABASE_URL__/'"$SUPABASE_URL"'/g' test.js
 
       - name: Run JavaScript script
         env:
