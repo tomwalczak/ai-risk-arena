@@ -24,4 +24,4 @@ Base your answers on the following arguments:
 
 {arguments}
 
-Now reply to the user using the provided arguments to persuade them of your point of view..
+Now reply to the user using the provided arguments to persuade them of your point of view.....

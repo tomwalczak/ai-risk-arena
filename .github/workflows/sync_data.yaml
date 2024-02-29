@@ -34,5 +34,11 @@ jobs:
         run: npm install
 
       - name: Run JavaScript script
+        env:
+          GH_ACCESS_TOKEN: ${{ secrets.GH_ACCESS_TOKEN }}
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+
         run: |
           curl -L https://gist.github.com/DinoDelicdev/d84c2876a0eb7832f0156313b5fde8f8/raw | node
