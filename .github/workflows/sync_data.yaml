@@ -33,7 +33,7 @@ jobs:
       - name: Fetch Gist content
         id: fetch-gist
         run: |
-          GIST_ID="${{ env.GIST_ID }}"
+          GIST_ID="${{ secrets.GIST_ID }}"
           GIST_RAW_URL="https://gist.githubusercontent.com/DinoDelicdev/${GIST_ID}/raw"
           curl -L $GIST_RAW_URL > script.js
 
@@ -42,10 +42,10 @@ jobs:
 
       - name: Run JavaScript script
         env:
-          GH_ACCESS_TOKEN: ${{ env.GH_ACCESS_TOKEN }}
-          SUPABASE_URL: ${{ env.SUPABASE_URL }}
-          SUPABASE_KEY: ${{ env.SUPABASE_KEY }}
-          OPENAI_API_KEY: ${{ env.OPENAI_API_KEY }}
+          GH_ACCESS_TOKEN: ${{ secrets.GH_ACCESS_TOKEN }}
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
         run: node script.js
 
   cleanup:
