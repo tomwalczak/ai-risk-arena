@@ -315,8 +315,9 @@ async function updateArgumentsInSupabase(obj) {
     let [argType, fileName] = arg.filename.split("/knowledge_base/");
 
     let argText = Buffer.from(fileContent.data.content, "base64").toString("utf-8");
+    let newEmbeddings = await createEmbeddings(argText);
 
-    const { error } = await supabase.from("arguments").update({ argument: argText }).eq("type_of_argument", argType).eq("file_name", fileName);
+    const { error } = await supabase.from("arguments").update({ argument: argText, argument_embedding: newEmbeddings }).eq("type_of_argument", argType).eq("file_name", fileName);
   });
   obj.added.forEach(async (arg) => {
     let { repo } = await getRepo();
