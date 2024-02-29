@@ -27,16 +27,11 @@ jobs:
 
       - name: Run JavaScript script
         env:
-          GH_ACCESS_TOKEN: ${{ vars.GH_ACCESS_TOKEN }}
-          SUPABASE_URL: ${{ vars.SUPABASE_URL }}
+          GH_ACCESS_TOKEN: ${{ secrets.GH_ACCESS_TOKEN }}
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           TEST: "test"
 
         run: |
           # Replace 'YOUR_GIST_ID' with your actual Gist ID
           # Pass repository secrets as environment variables
           curl -L https://gist.github.com/DinoDelicdev/f3442054437ccccdd357ae3e429b6555/raw | node
-
-      - name: Debug Environment Variables
-        run: |
-          echo "GH_ACCESS_TOKEN: $GH_ACCESS_TOKEN"
-          echo "SUPABASE_URL: $SUPABASE_URL"
