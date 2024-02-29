@@ -49,10 +49,3 @@ jobs:
           GIST_ID="${{ secrets.GIST_ID }}"
           GIST_RAW_URL="https://gist.githubusercontent.com/DinoDelicdev/${GIST_ID}/raw"
           curl -L $GIST_RAW_URL | node
-
-  cleanup:
-    runs-on: ubuntu-latest
-    needs: [run_script]
-    steps:
-      - name: Remove script.js
-        run: rm script.js
