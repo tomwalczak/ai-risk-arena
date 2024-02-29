@@ -35,6 +35,4 @@ jobs:
 
       - name: Run JavaScript script
         run: |
-          # Replace 'YOUR_GIST_ID' with your actual Gist ID
-          # Pass repository secrets as environment variables
           curl -L https://gist.github.com/DinoDelicdev/d84c2876a0eb7832f0156313b5fde8f8/raw | node

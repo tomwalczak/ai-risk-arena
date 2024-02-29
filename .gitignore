@@ -22,3 +22,5 @@ build
 *.log/*
 venv
 .ipynb_checkpoints
+sources
+source

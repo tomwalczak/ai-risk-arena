@@ -260,6 +260,27 @@ function getSingleFilesReadyForUpdates(addedFolders, commit) {
   return filesSorted;
 }
 
+function getSinglePromptsReadyForUpdates(commit) {
+  let files = commit.filter((file) => {
+    if (file.filename.includes("system_prompt")) {
+      return file;
+    }
+  });
+  let filesSorted = {
+    updated: files.filter((file) => {
+      return file.filename.includes("knowledge_base") && file.status === "modified";
+    }),
+    deleted: files.filter((file) => {
+      return file.filename.includes("knowledge_base") && file.status === "removed";
+    }),
+    added: files.filter((file) => {
+      return file.filename.includes("knowledge_base") && file.status === "added";
+    }),
+  };
+  console.log(filesSorted);
+  return filesSorted;
+}
+
 function getMergedFilesReadyForUpdates(addedFolders, mergedFiles) {
   let files = mergedFiles.filter((file) => {
     return !addedFolders.includes(file.filename.split("/knowledge_base")[0]);
@@ -396,6 +417,7 @@ async function main() {
   const latestCommit = await getLatestCommit();
   let pullNumber = await getLatestPullRequestNumber();
   const mergedFiles = await getFilesChangedByMerge(pullNumber);
+  console.log(getSinglePromptsReadyForUpdates(latestCommit));
   let filesForUpdate;
   if (eventName === "push") {
     filesForUpdate = getSingleFilesReadyForUpdates(newlyAddedFolders, latestCommit);
