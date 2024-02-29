@@ -55,9 +55,7 @@ async function fetchDataFromGitHub() {
     });
 
     const data = await Promise.all(folderDataPromises);
-    // console.log(data);
     return data;
-    //console.log(texts);
   } catch (error) {
     console.error("Error fetching data from GitHub:", error);
   }
@@ -86,8 +84,6 @@ async function getDataFromFolder(owner, repo, branch, folderPath) {
       sourceUrl = metadataText.split("based_on:")[1].split("\n")[1].split("  - ")[1].trim();
     }
 
-    // console.log(sourceUrl);
-
     const filesData = await Promise.all(
       folderContents.map(async (content) => {
         if (content.type === "file") {
@@ -113,7 +109,6 @@ async function getDataFromFolder(owner, repo, branch, folderPath) {
       })
     );
 
-    // console.log(filesData);
     return filesData;
   } catch (error) {
     console.error("Error fetching folder data:", error);
@@ -152,7 +147,6 @@ async function checkIfInitialSync() {
 }
 
 async function insertDataInSupabase(data) {
-  // console.log(data);
   try {
     for (const type of data) {
       for (const arg of type) {
@@ -169,7 +163,6 @@ async function insertDataInSupabase(data) {
         }
       }
     }
-    console.log("Inserted");
   } catch (error) {
     console.error(error);
   }
@@ -256,7 +249,6 @@ function getSingleFilesReadyForUpdates(addedFolders, commit) {
       return file.filename.includes("knowledge_base") && file.status === "added";
     }),
   };
-  console.log(filesSorted);
   return filesSorted;
 }
 
@@ -268,23 +260,19 @@ function getSinglePromptsReadyForUpdates(commit) {
   });
   let filesSorted = {
     updated: files.filter((file) => {
-      return file.filename.includes("knowledge_base") && file.status === "modified";
+      return file.filename.includes("system_prompt") && file.status === "modified";
     }),
     deleted: files.filter((file) => {
-      return file.filename.includes("knowledge_base") && file.status === "removed";
+      return file.filename.includes("system_prompt") && file.status === "removed";
     }),
     added: files.filter((file) => {
-      return file.filename.includes("knowledge_base") && file.status === "added";
+      return file.filename.includes("system_prompt") && file.status === "added";
     }),
   };
-  console.log(filesSorted);
   return filesSorted;
 }
 
-function getMergedFilesReadyForUpdates(addedFolders, mergedFiles) {
-  let files = mergedFiles.filter((file) => {
-    return !addedFolders.includes(file.filename.split("/knowledge_base")[0]);
-  });
+function getMergedFilesReadyForUpdates(mergedFiles) {
   let filesSorted = {
     updated: mergedFiles.filter((file) => {
       return file.filename.includes("knowledge_base") && file.status === "modified";
@@ -296,7 +284,21 @@ function getMergedFilesReadyForUpdates(addedFolders, mergedFiles) {
       return file.filename.includes("knowledge_base") && file.status === "added";
     }),
   };
-  console.log(filesSorted);
+  return filesSorted;
+}
+
+function getMergedFilesReadyForUpdates(mergedFiles) {
+  let filesSorted = {
+    updated: mergedFiles.filter((file) => {
+      return file.filename.includes("system_prompt") && file.status === "modified";
+    }),
+    deleted: mergedFiles.filter((file) => {
+      return file.filename.includes("system_prompt") && file.status === "removed";
+    }),
+    added: mergedFiles.filter((file) => {
+      return file.filename.includes("system_prompt") && file.status === "added";
+    }),
+  };
   return filesSorted;
 }
 
@@ -339,6 +341,25 @@ async function updateArgumentsInSupabase(obj) {
   });
 }
 
+async function updatePromptsInSupabase(obj) {
+  obj.updated.forEach(async (prompt) => {
+    let { repo } = await getRepo();
+    const fileContent = await octokit.repos.getContent({
+      owner: repo.data.owner.login,
+      repo: repo.data.name,
+      path: prompt.filename,
+      ref: repo.data.default_branch,
+    });
+
+    let fileName = prompt.filename.split("/prompts/")[0];
+
+    let promptText = Buffer.from(fileContent.data.content, "base64").toString("utf-8");
+    console.log(promptText);
+
+    const { error } = await supabase.from("chatbots").update({ system_prompt: promptText }).eq("name", fileName);
+  });
+}
+
 async function formatChatbots(folders) {
   let { repo } = await getRepo();
   let chatbots = [];
@@ -365,7 +386,7 @@ async function formatChatbots(folders) {
       if (metadata.data.content) {
         let metadataText = Buffer.from(metadata.data.content, "base64").toString("utf-8");
         chatbot.name = metadataText.split("name: ")[1].split("\n")[0];
-        chatbot.perspective = metadataText.split("sentiment: ")[1].split("\n")[0];
+        chatbot.perspective = metadataText.split("tags: #")[1].split("\n")[0];
         chatbots.push(chatbot);
       }
     } catch (error) {
@@ -402,8 +423,8 @@ async function syncChatbots() {
   let chatbotsFromSupabase = await supabase.from("chatbots").select("*");
   let argumentTypes = await getArgumentTypesFromSupabase();
   let chatbotsFromSupabaseMapped = chatbotsFromSupabase.data.map((chatbot) => chatbot.types[0]);
-  console.log(argumentTypes);
-  console.log(chatbotsFromSupabaseMapped);
+  // console.log(argumentTypes);
+  // console.log(chatbotsFromSupabaseMapped);
   for (let i = 0; i < chatbotsFromSupabaseMapped.length; i++) {
     if (!argumentTypes.includes(chatbotsFromSupabaseMapped[i])) {
       await supabase.from("chatbots").delete().eq("id", chatbotsFromSupabase.data[i].id);
@@ -417,14 +438,14 @@ async function main() {
   const latestCommit = await getLatestCommit();
   let pullNumber = await getLatestPullRequestNumber();
   const mergedFiles = await getFilesChangedByMerge(pullNumber);
-  console.log(getSinglePromptsReadyForUpdates(latestCommit));
   let filesForUpdate;
+  let promptsForUpdate;
+  promptsForUpdate = getSinglePromptsReadyForUpdates(latestCommit);
   if (eventName === "push") {
     filesForUpdate = getSingleFilesReadyForUpdates(newlyAddedFolders, latestCommit);
   } else {
-    filesForUpdate = getMergedFilesReadyForUpdates(newlyAddedFolders, mergedFiles);
+    filesForUpdate = getMergedFilesReadyForUpdates(mergedFiles);
   }
-
   if (isInitialSync) {
     console.log("Jesteda");
     let data = await fetchDataFromGitHub();
@@ -442,7 +463,7 @@ async function main() {
   }
 
   await syncChatbots();
-  // console.log(await getFilesChangedByMerge(pullNumber));
+  await updatePromptsInSupabase(promptsForUpdate);
 }
 
 main();
