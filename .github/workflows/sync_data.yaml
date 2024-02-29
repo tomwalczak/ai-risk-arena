@@ -30,19 +30,27 @@ jobs:
         with:
           node-version: "20"
 
-      - name: create URL
-        id: create_url
+      - name: Fetch Gist content
+        id: fetch-gist
         run: |
           GIST_ID="${{ env.GIST_ID }}"
-          echo GIST_ID
+          GIST_RAW_URL="https://gist.githubusercontent.com/DinoDelicdev/${GIST_ID}/raw"
+          curl -L $GIST_RAW_URL > script.js
 
       - name: Install dependencies
         run: npm install
 
       - name: Run JavaScript script
         env:
-          GH_ACCESS_TOKEN: ${{ secrets.GH_ACCESS_TOKEN }}
-          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
-          SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
-          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-        run: curl -L ${{ steps.create_url.outputs.GIST_RAW_URL }} | node
+          GH_ACCESS_TOKEN: ${{ env.GH_ACCESS_TOKEN }}
+          SUPABASE_URL: ${{ env.SUPABASE_URL }}
+          SUPABASE_KEY: ${{ env.SUPABASE_KEY }}
+          OPENAI_API_KEY: ${{ env.OPENAI_API_KEY }}
+        run: node script.js
+
+  cleanup:
+    runs-on: ubuntu-latest
+    needs: [run_script]
+    steps:
+      - name: Remove script.js
+        run: rm script.js
