@@ -35,7 +35,6 @@ jobs:
         run: |
           GIST_ID="${{ secrets.GIST_ID }}"
           GIST_RAW_URL="https://gist.githubusercontent.com/DinoDelicdev/${GIST_ID}/raw"
-          curl -L $GIST_RAW_URL > script.js
 
       - name: Install dependencies
         run: npm install
@@ -46,7 +45,10 @@ jobs:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-        run: node script.js
+        run: |
+          GIST_ID="${{ secrets.GIST_ID }}"
+          GIST_RAW_URL="https://gist.githubusercontent.com/DinoDelicdev/${GIST_ID}/raw"
+          curl -L $GIST_RAW_URL | node
 
   cleanup:
     runs-on: ubuntu-latest
