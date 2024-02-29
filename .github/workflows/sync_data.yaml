@@ -34,8 +34,7 @@ jobs:
         id: create_url
         run: |
           GIST_ID="${{ env.GIST_ID }}"
-          GIST_RAW_URL="https://gist.githubusercontent.com/DinoDelicdev/${GIST_ID}/raw"
-          echo "::set-output name=GIST_RAW_URL::$GIST_RAW_URL"
+          echo GIST_ID
 
       - name: Install dependencies
         run: npm install
