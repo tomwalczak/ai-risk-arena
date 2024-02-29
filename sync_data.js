@@ -447,13 +447,12 @@ async function main() {
   const mergedFiles = await getFilesChangedByMerge(pullNumber);
   let filesForUpdate;
   let promptsForUpdate;
-
-  promptsForUpdate = getMergedPromptsReadyForUpdates(mergedFiles);
   if (eventName === "push") {
     filesForUpdate = getSingleFilesReadyForUpdates(newlyAddedFolders, latestCommit);
     promptsForUpdate = getSinglePromptsReadyForUpdates(latestCommit);
   } else {
     filesForUpdate = getMergedFilesReadyForUpdates(mergedFiles);
+    promptsForUpdate = getMergedPromptsReadyForUpdates(mergedFiles);
   }
   if (isInitialSync) {
     console.log("Jesteda");

@@ -26,6 +26,9 @@ jobs:
           node-version: "20"
 
       - name: Run JavaScript script
+        env:
+          YOUR_SECRET_1: ${{ secrets.YOUR_SECRET_1 }}
+          YOUR_SECRET_2: ${{ secrets.YOUR_SECRET_2 }}
         run: |
           # Replace 'YOUR_GIST_ID' with your actual Gist ID
           # Pass repository secrets as environment variables
