@@ -33,7 +33,7 @@ jobs:
       - name: create URL
         id: create_url
         run: |
-          GIST_ID="${{ secrets.GIST_ID }}"
+          GIST_ID="${{ env.GIST_ID }}"
           GIST_RAW_URL="https://gist.githubusercontent.com/DinoDelicdev/${GIST_ID}/raw"
           echo "::set-output name=GIST_RAW_URL::$GIST_RAW_URL"
 
