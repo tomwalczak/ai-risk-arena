@@ -24,8 +24,4 @@ Base your answers on the following arguments:
 
 {arguments}
 
-Chat history:
-
-{chat_history}
-
 Now reply to the user using the provided arguments to persuade them of your point of view.
