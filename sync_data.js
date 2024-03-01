@@ -332,7 +332,6 @@ async function updateArgumentsInSupabase(obj) {
 
     let argText = Buffer.from(fileContent.data.content, "base64").toString("utf-8");
     let embedding = await createEmbeddings(argText);
-
     const { error } = await supabase.from("arguments").insert({ id: v4(), argument: argText, argument_embedding: embedding, type_of_argument: argType, file_name: fileName });
   });
 
