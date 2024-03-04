@@ -361,8 +361,6 @@ async function updatePromptsInSupabase(obj) {
     let metadataText = Buffer.from(metadataFileContent.data.content, "base64").toString("utf-8");
     let promptText = Buffer.from(fileContent.data.content, "base64").toString("utf-8");
     let chatbotName = metadataText.split("name: ")[1].split("\n")[0].trim();
-
-    console.log(chatbotName);
     const { error } = await supabase.from("chatbots").update({ system_prompt: promptText }).eq("name", chatbotName);
   });
 }
