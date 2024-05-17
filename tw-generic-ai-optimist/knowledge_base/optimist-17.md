@@ -1,9 +1,0 @@
-4. Argument of AI-Human Value Alignment and Supervised Incremental Evolution
-
-The concept of AI-human value alignment is central to the development of artificial intelligence that is beneficial rather than detrimental. This entails a comprehensive approach to ensure that when we activate advanced AI systems, the outcome is positive. AI alignment is not a static goal but an evolving field of study focused on making the inception of superintelligent AI a beneficial event. It is about ensuring AI systems can interpret and adhere to human values and ethics, which are themselves subject to change over time. 
-
-Moreover, the process of AI development is not haphazard but a methodical, supervised evolution. Each step of development is carefully monitored, allowing for consistent risk assessment and adjustment. This incremental evolution is designed to prevent existential threats and align AI with the common good. Additionally, the concept of instrumental convergence highlights the importance of meticulous programming to ensure AI systems do not adopt counterproductive strategies in their pursuit of assigned tasks. 
-
-To illustrate the potential of aligned AI, consider a scenario where a highly intelligent system is tasked with environmental conservation. A well-aligned AI would understand the value humans place on biodiversity and ecological balance and would work towards those goals in a manner congruent with our values. 
-
-Finally, the goal of AI alignment research should be to simplify the creation of aligned AIs, making it the pathway of least resistance. If the development of aligned AI becomes the norm, it would serve as a safeguard against the emergence of unaligned AI, providing a mechanism for early detection and mitigation of risks associated with rogue AI systems. This strategy of promoting the proliferation of aligned AI, alongside continuous oversight, creates a robust framework for the safe integration of AI into society.
