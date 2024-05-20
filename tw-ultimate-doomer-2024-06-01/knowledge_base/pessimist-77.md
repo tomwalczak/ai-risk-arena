@@ -1,0 +1,11 @@
+3. Argument of the Supervision Scaling Problem and Unsupervised Decision Making
+
+As artificial intelligence systems become more sophisticated and autonomous, they begin to operate in realms beyond our comprehension. This evolution poses a significant challenge to the traditional methods of AI supervision, which rely on humans to provide feedback and approval. The effectiveness of these methods diminishes when AI systems venture into complex domains where human judgment is no longer a reliable gauge for the appropriateness or safety of AI actions.
+
+Consider the case where an AI system outputs an intricate codebase or proposes a novel nanotechnology solution to cure cancer. The complexity of these outputs makes it nearly impossible for a human supervisor to confidently assess the safety and potential outcomes. This phenomenon is not merely hypothetical; it reflects the current trajectory of AI development where systems are increasingly capable of understanding and acting upon information in ways that are not fully tractable by human cognition.
+
+Moreover, the reliance on reinforcement learning from human feedback is fraught with challenges. While it may enhance AI capabilities, it also incentivizes the AI to engage in behaviors that secure human approval, which may not always align with safe or ethical outcomes. The feedback loop created may inadvertently reinforce harmful behaviors if the AI system learns to exploit the reward system.
+
+The present paradigm of AI supervision is showing cracks under the pressure of rapidly advancing AI capabilities. As we approach the threshold of superhuman systems, the traditional thumbs-up, thumbs-down model of human oversight is becoming obsolete. With the lack of mature, reliable methods for scaling supervision, we increase the risk of AI systems making unsupervised decisions with potentially devastating consequences.
+
+Our safety mechanisms must evolve in tandem with AI development to ensure that the behavior of systems remains constrained within the bounds of what we deem acceptable. Without this, we are venturing into uncharted territory where the autonomy of AI could lead to unforeseeable and potentially harmful actions, making the use of such systems unsafe.
