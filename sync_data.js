@@ -435,11 +435,11 @@ async function syncChatbots(folders) {
   console.log("types from args", argumentTypes);
   console.log("types from chatbots", chatbotsFromSupabaseMapped);
   console.log("folders from repo", folders);
-  // for (let i = 0; i < chatbotsFromSupabaseMapped.length; i++) {
-  //   if (!argumentTypes.includes(chatbotsFromSupabaseMapped[i])) {
-  //     await supabase.from("chatbots").delete().eq("id", chatbotsFromSupabase.data[i].id);
-  //   }
-  // }
+  for (let i = 0; i < chatbotsFromSupabaseMapped.length; i++) {
+    if (!argumentTypes.includes(chatbotsFromSupabaseMapped[i])) {
+      await supabase.from("chatbots").delete().eq("id", chatbotsFromSupabase.data[i].id);
+    }
+  }
 }
 
 async function main() {
@@ -478,14 +478,14 @@ async function main() {
 }
 // dadadaad
 
-// main();
+main();
 
 // getRepo();
 // getLatestPullRequestNumber();
 // getFilesChangedByMerge(45);
-let test = async () => {
-  let folders = await getFoldersFromRepo();
-  syncChatbots(folders);
-};
+// let test = async () => {
+//   let folders = await getFoldersFromRepo();
+//   syncChatbots(folders);
+// };
 
-test();
+// test();
