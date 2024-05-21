@@ -31,6 +31,9 @@ async function getRepo() {
     repo: "ai-safety-arena",
     ref: branch.data.name,
   });
+  // console.log(repo);
+  // console.log(branch);
+  // console.log(contents);
   return { repo, branch, contents };
 }
 
@@ -194,6 +197,7 @@ async function getLatestPullRequestNumber() {
     });
 
     if (pullRequests.length > 0) {
+      console.log(pullRequests[0].number);
       return pullRequests[0].number; // Return the pull request number of the first item
     } else {
       throw new Error("No pull requests found");
@@ -212,7 +216,7 @@ async function getFilesChangedByMerge(pullNumber) {
       repo: repo.data.name,
       pull_number: pullNumber,
     });
-
+    console.log(files);
     return files;
   } catch (error) {
     console.error("Error getting files changed by merge:", error);
@@ -222,7 +226,7 @@ async function getFilesChangedByMerge(pullNumber) {
 
 async function getFoldersFromRepo() {
   const { contents } = await getRepo();
-  const foldersInRepo = contents.data.filter((content) => content.type === "dir" && content.name !== ".github" && content.name !== "source").map((folder) => folder.name);
+  const foldersInRepo = contents.data.filter((content) => content.type === "dir" && content.name !== ".github" && content.name !== "sources").map((folder) => folder.name);
   return foldersInRepo;
 }
 
@@ -424,17 +428,18 @@ async function prepareChatbotsForInsertionAndInsertInSupabase(folders) {
   });
 }
 
-async function syncChatbots() {
+async function syncChatbots(folders) {
   let chatbotsFromSupabase = await supabase.from("chatbots").select("*");
   let argumentTypes = await getArgumentTypesFromSupabase();
   let chatbotsFromSupabaseMapped = chatbotsFromSupabase.data.map((chatbot) => chatbot.types[0]);
-  // console.log(argumentTypes);
-  // console.log(chatbotsFromSupabaseMapped);
-  for (let i = 0; i < chatbotsFromSupabaseMapped.length; i++) {
-    if (!argumentTypes.includes(chatbotsFromSupabaseMapped[i])) {
-      await supabase.from("chatbots").delete().eq("id", chatbotsFromSupabase.data[i].id);
-    }
-  }
+  console.log("types from args", argumentTypes);
+  console.log("types from chatbots", chatbotsFromSupabaseMapped);
+  console.log("folders from repo", folders);
+  // for (let i = 0; i < chatbotsFromSupabaseMapped.length; i++) {
+  //   if (!argumentTypes.includes(chatbotsFromSupabaseMapped[i])) {
+  //     await supabase.from("chatbots").delete().eq("id", chatbotsFromSupabase.data[i].id);
+  //   }
+  // }
 }
 
 async function main() {
@@ -443,6 +448,7 @@ async function main() {
   const latestCommit = await getLatestCommit();
   let pullNumber = await getLatestPullRequestNumber();
   const mergedFiles = await getFilesChangedByMerge(pullNumber);
+  let folders = await getFoldersFromRepo();
   let filesForUpdate;
   let promptsForUpdate;
   if (eventName === "push") {
@@ -456,7 +462,6 @@ async function main() {
     console.log("Jesteda");
     let data = await fetchDataFromGitHub();
     await insertDataInSupabase(data);
-    let folders = await getFoldersFromRepo();
     await prepareChatbotsForInsertionAndInsertInSupabase(folders);
   } else if (newlyAddedFolders.length) {
     console.log("Njet");
@@ -473,4 +478,14 @@ async function main() {
 }
 // dadadaad
 
-main();
+// main();
+
+// getRepo();
+// getLatestPullRequestNumber();
+// getFilesChangedByMerge(45);
+let test = async () => {
+  let folders = await getFoldersFromRepo();
+  syncChatbots(folders);
+};
+
+test();
