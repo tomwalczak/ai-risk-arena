@@ -276,6 +276,21 @@ function getSinglePromptsReadyForUpdates(commit) {
   return filesSorted;
 }
 
+function getSingleMetadataReadyForUpdates(commit) {
+  let files = commit.filter((file) => {
+    if (file.filename.includes("metadata")) {
+      return file;
+    }
+  });
+  let filesSorted = {
+    updated: files.filter((file) => {
+      return file.filename.includes("metadata") && file.status === "modified";
+    }),
+  };
+
+  console.log(filesSorted);
+}
+
 function getMergedFilesReadyForUpdates(mergedFiles) {
   let filesSorted = {
     updated: mergedFiles.filter((file) => {
