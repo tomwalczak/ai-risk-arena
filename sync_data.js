@@ -353,7 +353,7 @@ function getMergedPromptsReadyForUpdates(mergedFiles) {
   return filesSorted;
 }
 
-function getMergedMetadataReadyForUpdates(mergedFiles) {
+async function getMergedMetadataReadyForUpdates(mergedFiles) {
   let filesSorted = {
     updated: mergedFiles.filter((file) => {
       return file.filename.includes("metadata") && file.status === "modified";
@@ -547,11 +547,14 @@ async function main() {
 // getLatestPullRequestNumber();
 // getFilesChangedByMerge(45);
 let test = async () => {
-  const latestCommit = await getLatestCommit();
-  const metadataChanges = await getSingleMetadataReadyForUpdates(latestCommit);
-  console.log(metadataChanges);
-  console.log(metadataChanges.length);
-  await updateChatbotNames(metadataChanges);
+  let pullNumber = await getLatestPullRequestNumber();
+  const mergedFiles = await getFilesChangedByMerge(pullNumber);
+  await getMergedMetadataReadyForUpdates(mergedFiles);
+  // const latestCommit = await getLatestCommit();
+  // const metadataChanges = await getSingleMetadataReadyForUpdates(latestCommit);
+  // console.log(metadataChanges);
+  // console.log(metadataChanges.length);
+  // await updateChatbotNames(metadataChanges);
 };
 
 test();
