@@ -276,7 +276,8 @@ function getSinglePromptsReadyForUpdates(commit) {
   return filesSorted;
 }
 
-function getSingleMetadataReadyForUpdates(commit) {
+async function getSingleMetadataReadyForUpdates(commit) {
+  let { repo } = await getRepo();
   let files = commit.filter((file) => {
     if (file.filename.includes("metadata")) {
       return file;
@@ -288,7 +289,38 @@ function getSingleMetadataReadyForUpdates(commit) {
     }),
   };
 
-  console.log(filesSorted);
+  let filesChangedPaths = filesSorted.updated.map((file) => {
+    return file.filename;
+  });
+
+  let oldChatbotNames = filesSorted.updated.map((file) => {
+    let nameString = file.patch.split("-name:");
+    let name = nameString[1].split("\n")[0];
+    return name.trim();
+  });
+  let newChatbotNames = await Promise.all(
+    filesChangedPaths.map(async (filePath) => {
+      let metadata = await octokit.repos.getContent({
+        owner: repo.data.owner.login,
+        repo: repo.data.name,
+        path: filePath,
+        ref: repo.data.default_branch,
+      });
+      let metadataText = Buffer.from(metadata.data.content, "base64").toString("utf-8");
+      let newChatbotName = metadataText.split("name:")[1].split("\n")[0].trim();
+      return newChatbotName;
+    })
+  );
+
+  let updateChatbotNamesData = oldChatbotNames.map((oldName, i) => {
+    return {
+      oldName: oldName,
+      newName: newChatbotNames[i],
+    };
+  });
+
+  console.log(updateChatbotNamesData);
+  return updateChatbotNamesData;
 }
 
 function getMergedFilesReadyForUpdates(mergedFiles) {
@@ -319,6 +351,15 @@ function getMergedPromptsReadyForUpdates(mergedFiles) {
     }),
   };
   return filesSorted;
+}
+
+function getMergedMetadataReadyForUpdates(mergedFiles) {
+  let filesSorted = {
+    updated: mergedFiles.filter((file) => {
+      return file.filename.includes("metadata") && file.status === "modified";
+    }),
+  };
+  console.log(filesSorted);
 }
 
 async function updateArgumentsInSupabase(obj) {
@@ -457,6 +498,12 @@ async function syncChatbots(folders) {
   }
 }
 
+async function updateChatbotNames(arrOfUpdateObjects) {
+  for (let i = 0; i < arrOfUpdateObjects.length; i++) {
+    const { error } = await supabase.from("chatbots").update({ name: arrOfUpdateObjects[i].newName }).eq("name", arrOfUpdateObjects[i].oldName);
+  }
+}
+
 async function main() {
   const isInitialSync = await checkIfInitialSync();
   const newlyAddedFolders = await getNewlyAddedFolders();
@@ -466,6 +513,7 @@ async function main() {
   let folders = await getFoldersFromRepo();
   let filesForUpdate;
   let promptsForUpdate;
+  let metadataForUpdate;
   if (eventName === "push") {
     filesForUpdate = getSingleFilesReadyForUpdates(newlyAddedFolders, latestCommit);
     promptsForUpdate = getSinglePromptsReadyForUpdates(latestCommit);
@@ -488,19 +536,22 @@ async function main() {
     await updateArgumentsInSupabase(filesForUpdate);
   }
 
-  await syncChatbots();
+  await syncChatbots(folders);
   await updatePromptsInSupabase(promptsForUpdate);
 }
 // dadadaad
 
-main();
+// main();
 
 // getRepo();
 // getLatestPullRequestNumber();
 // getFilesChangedByMerge(45);
-// let test = async () => {
-//   let folders = await getFoldersFromRepo();
-//   syncChatbots(folders);
-// };
+let test = async () => {
+  const latestCommit = await getLatestCommit();
+  const metadataChanges = await getSingleMetadataReadyForUpdates(latestCommit);
+  console.log(metadataChanges);
+  console.log(metadataChanges.length);
+  await updateChatbotNames(metadataChanges);
+};
 
-// test();
+test();
