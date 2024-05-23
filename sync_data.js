@@ -354,12 +354,44 @@ function getMergedPromptsReadyForUpdates(mergedFiles) {
 }
 
 async function getMergedMetadataReadyForUpdates(mergedFiles) {
+  let { repo } = await getRepo();
   let filesSorted = {
     updated: mergedFiles.filter((file) => {
       return file.filename.includes("metadata") && file.status === "modified";
     }),
   };
-  console.log(filesSorted);
+  let filesChangedPaths = filesSorted.updated.map((file) => {
+    return file.filename;
+  });
+
+  let oldChatbotNames = filesSorted.updated.map((file) => {
+    let nameString = file.patch.split("-name:");
+    let name = nameString[1].split("\n")[0];
+    return name.trim();
+  });
+  let newChatbotNames = await Promise.all(
+    filesChangedPaths.map(async (filePath) => {
+      let metadata = await octokit.repos.getContent({
+        owner: repo.data.owner.login,
+        repo: repo.data.name,
+        path: filePath,
+        ref: repo.data.default_branch,
+      });
+      let metadataText = Buffer.from(metadata.data.content, "base64").toString("utf-8");
+      let newChatbotName = metadataText.split("name:")[1].split("\n")[0].trim();
+      return newChatbotName;
+    })
+  );
+
+  let updateChatbotNamesData = oldChatbotNames.map((oldName, i) => {
+    return {
+      oldName: oldName,
+      newName: newChatbotNames[i],
+    };
+  });
+
+  console.log(updateChatbotNamesData);
+  return updateChatbotNamesData;
 }
 
 async function updateArgumentsInSupabase(obj) {
@@ -549,12 +581,12 @@ async function main() {
 let test = async () => {
   let pullNumber = await getLatestPullRequestNumber();
   const mergedFiles = await getFilesChangedByMerge(pullNumber);
-  await getMergedMetadataReadyForUpdates(mergedFiles);
+  const metadataChanges = await getMergedMetadataReadyForUpdates(mergedFiles);
   // const latestCommit = await getLatestCommit();
   // const metadataChanges = await getSingleMetadataReadyForUpdates(latestCommit);
   // console.log(metadataChanges);
   // console.log(metadataChanges.length);
-  // await updateChatbotNames(metadataChanges);
+  await updateChatbotNames(metadataChanges);
 };
 
 test();
