@@ -389,8 +389,6 @@ async function getMergedMetadataReadyForUpdates(mergedFiles) {
       newName: newChatbotNames[i],
     };
   });
-
-  console.log(updateChatbotNamesData);
   return updateChatbotNamesData;
 }
 
