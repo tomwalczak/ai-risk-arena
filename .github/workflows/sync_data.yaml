@@ -1,0 +1,51 @@
+name: Sync Data
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+    types: [closed]
+    paths-ignore:
+      - "**"
+
+jobs:
+  run_script:
+    runs-on: ubuntu-latest
+
+    if: |
+      (github.event_name == 'push' && github.ref == 'refs/heads/main' && github.event.after != '0000000000000000000000000000000000000000') ||
+      (github.event_name == 'pull_request' && github.event.action == 'closed' &&
+      github.event.pull_request.base.ref == 'main' &&
+      github.event.pull_request.merged == true && github.event.pull_request.base.ref != github.event.pull_request.head.ref)
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: "20"
+
+      - name: Fetch Gist content
+        id: fetch-gist
+        run: |
+          GIST_ID="${{ secrets.GIST_ID }}"
+          GIST_RAW_URL="https://gist.githubusercontent.com/DinoDelicdev/${GIST_ID}/raw"
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Run JavaScript script
+        env:
+          GH_ACCESS_TOKEN: ${{ secrets.GH_ACCESS_TOKEN }}
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        run: |
+          GIST_ID="${{ secrets.GIST_ID }}"
+          GIST_RAW_URL="https://gist.githubusercontent.com/DinoDelicdev/${GIST_ID}/raw"
+          curl -L $GIST_RAW_URL | node
